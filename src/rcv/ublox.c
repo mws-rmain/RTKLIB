@@ -393,8 +393,11 @@ static int decode_rxmrawx(raw_t *raw)
         cn0  =U1(p+26);    /* cn0 (dBHz) */
         prstd=U1(p+27)&15; /* pseudorange std-dev */
         cpstd=U1(p+28)&15; /* cpStdev (m) */
-        prstd=1<<(prstd>=5?prstd-5:0); /* prstd=2^(x-5) */
         tstat=U1(p+30);    /* trkStat */
+
+        prstd=1<<(prstd>=5?prstd-5:0); /* prstd=2^(x-5) */
+        prstd=prstd<=9?prstd:9;        /* limit to 9 to fit RINEX format */
+
         if (!(tstat&1)) P=0.0;
         if (!(tstat&2)||L==-0.5||cpstd>cpstd_valid) L=0.0; /* invalid phase */
 

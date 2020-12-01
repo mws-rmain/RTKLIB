@@ -74,6 +74,17 @@ static int obsindex(obs_t *obs, gtime_t time, int sat)
     obs->n++;
     return i;
 }
+/* ura value (m) to ura index ------------------------------------------------*/
+static int get_uraindex(double value)
+{
+    static const double ura_eph[]={
+        2.4,3.4,4.85,6.85,9.65,13.65,24.0,48.0,96.0,192.0,384.0,768.0,1536.0,
+        3072.0,6144.0,0.0
+    };
+    int i;
+    for (i=0;i<15;i++) if (ura_eph[i]>=value) break;
+    return i;
+}
 /* decode tersus tracking status -----------------------------------------------
 * deocode tersus tracking status
 * args   : unsigned int stat I  tracking status field
@@ -429,7 +440,9 @@ static int decode_gpsephemb(raw_t *raw)
     eph.toe=gpst2time(eph.week,eph.toes);
     eph.toc=gpst2time(eph.week,toc);
     eph.ttr=adjweek(eph.toe,tow);
-    eph.sva=uraindex(ura);
+//    eph.sva=uraindex(ura);
+    eph.sva=get_uraindex(ura);
+    
 
     if (!strstr(raw->opt,"-EPHALL")) {
         if (timediff(raw->nav.eph[eph.sat-1].toe,eph.toe)==0.0&&
@@ -543,7 +556,8 @@ static int decode_bdsephemerisb(raw_t *raw)
     eph.cic   =R8(p);   p+=8;
     eph.cis   =R8(p);
     eph.A     =sqrtA*sqrtA;
-    eph.sva   =uraindex(ura);
+//    eph.sva   =uraindex(ura);
+    eph.sva   =get_uraindex(ura);
     
     if (raw->outtype) {
         msg=raw->msgtype+strlen(raw->msgtype);

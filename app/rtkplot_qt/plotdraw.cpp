@@ -268,8 +268,10 @@ void Plot::DrawTrk(QPainter &c,int level)
         for (i=0;i<3;i++) rr[i]+=OPos[i];
         ecef2pos(rr,cent);
 
+#ifdef GEARTH_GMAP_ENABLE
         googleEarthView->SetCent(cent[0]*R2D,cent[1]*R2D);
         googleMapView->SetCent(cent[0]*R2D,cent[1]*R2D);
+#endif
     }
     Refresh_GEView();
 }

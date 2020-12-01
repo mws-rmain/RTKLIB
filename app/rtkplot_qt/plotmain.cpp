@@ -209,9 +209,10 @@ Plot::Plot(QWidget *parent) : QMainWindow(parent)
     
     TLEData.n=TLEData.nmax=0;
     TLEData.data=NULL;
-
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView = new GoogleEarthView(this);
     googleMapView = new GoogleMapView(this);
+#endif
     spanDialog = new SpanDialog(this);
     mapAreaDialog = new MapAreaDialog(this);
     connectDialog = new ConnectDialog(this);
@@ -315,11 +316,13 @@ Plot::Plot(QWidget *parent) : QMainWindow(parent)
     connect(FrqType,SIGNAL(currentIndexChanged(int)),this,SLOT(ObsTypeChange()));
 
     bool state=false;
+#ifdef GEARTH_GMAP_ENABLE
 #ifdef QWEBKIT
     state=true;
 #endif
 #ifdef QWEBENGINE
     state=true;
+#endif
 #endif
     MenuGE->setEnabled(state);
     MenuGM->setEnabled(state);
@@ -332,6 +335,7 @@ Plot::Plot(QWidget *parent) : QMainWindow(parent)
     widget->setAttribute(Qt::WA_TransparentForMouseEvents);
     centralwidget->setAttribute(Qt::WA_TransparentForMouseEvents);
     setMouseTracking(true);
+    setAcceptDrops(true);
 
     LoadOpt();
 
@@ -395,7 +399,7 @@ void Plot::showEvent (QShowEvent *event)
             QCoreApplication::translate("main", "path"));
     parser.addOption(path2Option);
 
-    QCommandLineOption traceOption(QStringList() << "t" << "tracelevel",
+    QCommandLineOption traceOption(QStringList() << "x" << "tracelevel",
             QCoreApplication::translate("main", "set trace lavel to <tracelavel>."),
             QCoreApplication::translate("main", "tracelevel"));
     parser.addOption(traceOption);
@@ -1015,16 +1019,20 @@ void Plot::MenuGEClick()
 {
     trace(3,"MenuGEClick\n");
     
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView->setWindowTitle(
         QString(tr("%1 ver.%2 %3: Google Earth View")).arg(PRGNAME).arg(VER_RTKLIB).arg(PATCH_LEVEL));
     googleEarthView->show();
+#endif
 }
 // callback on menu-google-map-view -----------------------------------------
 void Plot::MenuGMClick()
 {
+#ifdef GEARTH_GMAP_ENABLE
     googleMapView->setWindowTitle(
         QString(tr("%1 ver.%2 %3: Google Map View")).arg(PRGNAME).arg(VER_RTKLIB).arg(PATCH_LEVEL));
     googleMapView->show();
+#endif
 }
 // callback on menu-center-origin -------------------------------------------
 void Plot::MenuCenterOriClick()
@@ -1132,11 +1140,13 @@ void Plot::MenuPlotGEClick()
     this->move(rect.x(),rect.y());
     this->resize(rect.width()/2-thisDecoration.width(),rect.height()-thisDecoration.height());
 
+#ifdef GEARTH_GMAP_ENABLE
     QSize GEDecoration=googleEarthView->frameSize()-googleEarthView->size();
     googleEarthView->move(rect.x(),rect.y());
     googleEarthView->resize(rect.width()-GEDecoration.width(),rect.height()-GEDecoration.height());
     googleEarthView->setVisible(true);
     googleMapView->setVisible(false);
+#endif
 }
 // callback on menu-windows-plot-gm -----------------------------------------
 void Plot::MenuPlotGMClick()
@@ -1147,11 +1157,13 @@ void Plot::MenuPlotGMClick()
     this->move(rect.x(),rect.y());
     this->resize(rect.width()/2-thisDecoration.width(),rect.height()-thisDecoration.height());
 
+#ifdef GEARTH_GMAP_ENABLE
     QSize GMDecoration=googleMapView->frameSize()-googleMapView->size();
     googleMapView->move(rect.x()+rect.width()/2,rect.y());
     googleMapView->resize(rect.width()/2-GMDecoration.width(),rect.height()-GMDecoration.height());
     googleEarthView->setVisible(false);;
     googleMapView->setVisible(true);
+#endif
 }
 // callback on menu-windows-plot-ge/gm --------------------------------------
 void Plot::MenuPlotGEGMClick()
@@ -1162,6 +1174,7 @@ void Plot::MenuPlotGEGMClick()
     this->move(rect.x(),rect.y());
     this->resize(rect.width()/2-thisDecoration.width(),rect.height()-thisDecoration.height());
 
+#ifdef GEARTH_GMAP_ENABLE
     QSize GMDecoration=googleMapView->frameSize()-googleMapView->size();
     googleMapView->move(rect.x()+rect.width()/2,rect.y());
     googleMapView->resize(rect.width()/2-GMDecoration.width(),rect.height()-GMDecoration.height());
@@ -1173,7 +1186,7 @@ void Plot::MenuPlotGEGMClick()
     googleEarthView->resize(rect.width()/2-GEDecoration.width(),rect.height()/2-GEDecoration.height());
     googleMapView->move(rect.x()+rect.width()/2,rect.y()+rect.height()/2);
     googleMapView->resize(rect.width()/2-GMDecoration.width(),rect.height()/2-GMDecoration.height());
-
+#endif
 }
 //---------------------------------------------------------------------------
 #if 0
@@ -1918,8 +1931,10 @@ void Plot::TimerTimer()
                         time2gpst(SolData[i].time,&Week);
                         UpdateOrigin();
                         ecef2pos(SolData[i].data[0].rr,pos);
+#ifdef GEARTH_GMAP_ENABLE
 //                        googleEarthView->SetView(pos[0]*R2D,pos[1]*R2D,0.0,0.0);
 //                        googleMapView->SetView(pos[0]*R2D,pos[1]*R2D,13);
+#endif
                     }
                     nmsg[i]++;
                 }
@@ -2207,8 +2222,10 @@ void Plot::UpdateOrigin(void)
         OVel[i]=ovel[i];
     }
     ecef2pos(OPos,pos);
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView->SetView(pos[0]*R2D,pos[1]*R2D,0.0,0.0);
     googleMapView->SetView(pos[0]*R2D,pos[1]*R2D,13);
+#endif
 }
 // update satellite mask ----------------------------------------------------
 void Plot::UpdateSatMask(void)
@@ -2458,8 +2475,10 @@ void Plot::SetRange(int all, double range)
         GraphT->SetScale(MAX(xs,ys),MAX(xs,ys));
         if (norm(OPos,3)>0.0) {
             ecef2pos(OPos,pos);
+#ifdef GEARTH_GMAP_ENABLE
             googleEarthView->SetView(pos[0]*R2D,pos[1]*R2D,0.0,0.0);
             googleMapView->SetView(pos[0]*R2D,pos[1]*R2D,13);
+#endif
         }
     }
     if (PLOT_SOLP<=PlotType&&PlotType<=PLOT_SOLA) {
@@ -2596,7 +2615,9 @@ void Plot::FitRange(int all)
         if (lats[0]<=lats[1]&&lons[0]<=lons[1]) {
             lat=(lats[0]+lats[1])/2.0;
             lon=(lons[0]+lons[1])/2.0;
+#ifdef GEARTH_GMAP_ENABLE
             googleEarthView->SetView(lat,lon,0.0,0.0);
+#endif
         }
     }
 }
@@ -2627,19 +2648,19 @@ void Plot::LoadOpt(void)
     TimeLabel    =settings.value("plot/timelabel",     1).toInt();
     LatLonFmt    =settings.value("plot/latlonfmt",     0).toInt();
     AutoScale    =settings.value("plot/autoscale",     1).toInt();
-    ShowStats    =settings.value("plot/showstats",     0).toInt();
+    ShowStats    =settings.value("plot/showstats",     1).toInt();
     ShowLabel    =settings.value("plot/showlabel",     1).toInt();
     ShowGLabel   =settings.value("plot/showglabel",    1).toInt();
     ShowCompass  =settings.value("plot/showcompass",   0).toInt();
     ShowScale    =settings.value("plot/showscale",     1).toInt();
     ShowArrow    =settings.value("plot/showarrow",     0).toInt();
-    ShowSlip     =settings.value("plot/showslip",      0).toInt();
-    ShowHalfC    =settings.value("plot/showhalfc",     0).toInt();
+    ShowSlip     =settings.value("plot/showslip",      2).toInt();
+    ShowHalfC    =settings.value("plot/showhalfc",     1).toInt();
     ShowErr      =settings.value("plot/showerr",       0).toInt();
     ShowEph      =settings.value("plot/showeph",       0).toInt();
     PlotStyle    =settings.value("plot/plotstyle",     0).toInt();
     MarkSize     =settings.value("plot/marksize",      2).toInt();
-    NavSys       =settings.value("plot/navsys",  SYS_GPS).toInt();
+    NavSys       =settings.value("plot/navsys",  SYS_ALL).toInt();
     AnimCycle    =settings.value("plot/animcycle",    10).toInt();
     RefCycle     =settings.value("plot/refcycle",    100).toInt();
     HideLowSat   =settings.value("plot/hidelowsat",    0).toInt();
@@ -2713,7 +2734,9 @@ void Plot::LoadOpt(void)
     for (i=0;i<11;i++) {
         geopts[i]=settings.value(QString("ge/geopts_%1").arg(i),0).toInt();
     }
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView->SetOpts(geopts);
+#endif
     
     for (i=0;i<2;i++) {
         StrCmds  [0][i]=settings.value (QString("str/strcmd1_%1").arg(i),"").toString();
@@ -2842,7 +2865,9 @@ void Plot::SaveOpt(void)
     
     settings.setValue ("plot/rnxopts",      RnxOpts       );
     
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView->GetOpts(geopts);
+#endif
     for (i=0;i<11;i++) {
         settings.setValue(QString("gr/geopts_%1").arg(i),geopts[i]);
     }

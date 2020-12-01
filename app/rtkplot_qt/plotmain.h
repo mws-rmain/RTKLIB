@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QTime>
 #include <QMainWindow>
+#include <clocale>
 
 #include "graph.h"
 #include "console.h"
@@ -365,8 +366,10 @@ private:
     void  SaveOpt      (void);
     
     MapAreaDialog *mapAreaDialog;
+#ifdef GEARTH_GMAP_ENABLE
     GoogleEarthView *googleEarthView;
     GoogleMapView *googleMapView;
+#endif
     SpanDialog *spanDialog;
     ConnectDialog *connectDialog;
     SkyImgDialog *skyImgDialog;

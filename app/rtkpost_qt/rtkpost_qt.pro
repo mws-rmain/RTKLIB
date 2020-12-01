@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 include(../../RTKLib.pri)
+include(../deploy.pri)
 
 TARGET = rtkpost_qt
 TEMPLATE = app
@@ -24,7 +25,7 @@ linux{
 }
 macx{
     RTKLIB =../../src/libRTKLib.a
-    LIBS+= $${RTKLIB}
+    LIBS += /usr/local/lib/libpng.a $${RTKLIB}
 }
 win32 {
     CONFIG(debug) {
@@ -50,7 +51,8 @@ SOURCES += \
     ../appcmn_qt/refdlg.cpp \
     ../appcmn_qt/viewer.cpp \
     ../appcmn_qt/vieweropt.cpp \
-    ../appcmn_qt/timedlg.cpp
+    ../appcmn_qt/timedlg.cpp \
+    ../appcmn_qt/utils.cpp
 
 HEADERS  += \ 
     extopt.h \
@@ -63,7 +65,8 @@ HEADERS  += \
     ../appcmn_qt/viewer.h \
     ../appcmn_qt/vieweropt.h \
     ../appcmn_qt/aboutdlg.h \
-    ../appcmn_qt/timedlg.h
+    ../appcmn_qt/timedlg.h \
+    ../appcmn_qt/utils.h
 
 FORMS    += \ 
     extopt.ui \

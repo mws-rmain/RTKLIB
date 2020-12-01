@@ -4,6 +4,7 @@
 //---------------------------------------------------------------------------
 #include <QMainWindow>
 #include <QThread>
+#include <clocale>
 
 #include "ui_convmain.h"
 
@@ -26,12 +27,14 @@ class ConversionThread : public QThread
 {
     Q_OBJECT
 public:
-    char ifile[1024],*ofile[7];
+    char ifile[1024],*ofile[NOUTFILE];
     rnxopt_t rnxopt;
     int format;
+    stream_t stream;
+    int abortf;
 
     explicit ConversionThread(QObject *parent):QThread(parent){
-        for (int i=0;i<7;i++)
+        for (int i=0;i<NOUTFILE;i++)
         {
             ofile[i]=new char[1024];
             ofile[i][0]='\0';
@@ -39,16 +42,18 @@ public:
         memset(&rnxopt,0,sizeof(rnxopt_t));
         format=0;
         ifile[0]='\0';
+        strinit(&stream);
+        abortf=0;
     }
 
     ~ConversionThread() {
-        for (int i=0;i<7;i++) delete[] ofile[i];
+        for (int i=0;i<NOUTFILE;i++) delete[] ofile[i];
     }
 
 protected:
     void run() {
         // convert to rinex
-        convrnx(format,&rnxopt,ifile,ofile);
+        convrnx(format,&rnxopt,ifile,ofile,&abortf,&stream);
     }
 };
 
@@ -99,6 +104,10 @@ public slots:
     void BtnPostClick();
     void BtnOutFile7Click();
     void BtnOutFileView7Click();
+    void BtnOutFile8Click();
+    void BtnOutFileView8Click();
+    void BtnOutFile9Click();
+    void BtnOutFileView9Click();
     void BtnInFileViewClick();
     void ConversionFinished();
     void UpdateEnable();
@@ -134,7 +143,7 @@ public:
     QString CodeMask[6];
 	double AppPos[3],AntDel[3];
 	int RnxVer,RnxFile,NavSys,ObsType,FreqType,TraceLevel,EventEna;
-	int AutoPos,ScanObs,OutIono,OutTime,OutLeaps;
+    int AutoPos,ScanObs,OutIono,OutTime,OutLeaps,SepNav;
 	
     explicit MainWindow(QWidget *parent=0);
 };

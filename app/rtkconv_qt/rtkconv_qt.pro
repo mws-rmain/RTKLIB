@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 include(../../RTKLib.pri)
+include(../deploy.pri)
 
 TARGET = rtkconv_qt
 TEMPLATE = app
@@ -23,7 +24,7 @@ linux{
 }
 macx{
     RTKLIB =../../src/libRTKLib.a
-    LIBS+= $${RTKLIB}
+    LIBS += /usr/local/lib/libpng.a $${RTKLIB}
 }
 win32 {
     CONFIG(debug) {

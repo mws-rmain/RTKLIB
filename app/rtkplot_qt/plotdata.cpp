@@ -1074,16 +1074,22 @@ void Plot::Disconnect(void)
 // check observation data types ---------------------------------------------
 int Plot::CheckObs(const QString &file)
 {
-    
-    if (!file.indexOf('.')) return 0;
-    int p=file.lastIndexOf('.');
-    if (file.indexOf(".z")||file.indexOf(".gz")||file.indexOf(".zip")||
-        file.indexOf(".Z")||file.indexOf(".GZ")||file.indexOf(".ZIP")) {
-        return file.at(p-1)=='o'||file.at(p-1)=='O'||file.at(p-1)=='d'||file.at(p-1)=='D';
+    QString ext=QFileInfo(file).completeSuffix().toLower();
+
+    if (ext.isEmpty()) return 0;
+
+    int p;
+
+    // filename example: EMLD2120.19O.zip, suffix: 19O.zip
+    if ((p=ext.indexOf(".z"))!=-1||(p=ext.indexOf(".gz"))!=-1||
+        (p=ext.indexOf(".zip"))!=-1) {
+        if (p<1) return 0;
+        return ext.at(p-1)=='o'||ext.at(p-1)=='d';
     }
-    return file.indexOf(".obs")||file.indexOf(".OBS")||
-           file.mid(p+3)=="o" ||file.mid(p+3)=="O"||
-           file.mid(p+3)=="d" ||file.mid(p+3)=="D" ;
+
+    return ext=="obs"||
+           (ext.length()==3&&ext[2]=='o')||
+           (ext.length()==3&&ext[2]=='d');
 }
 // update observation data index, azimuth/elevation, satellite list ---------
 void Plot::UpdateObs(int nobs)
@@ -1125,7 +1131,7 @@ void Plot::UpdateObs(int nobs)
             azel[k*2]=azel[1+k*2]=0.0;
         }
         if (RcvPos==0) {
-            pntpos(Obs.data+i,j-i,&Nav,&opt,&sol,azel,NULL,msg);
+            pntpos(Obs.data+i,j-i,&Nav,NULL,&opt,&sol,azel,NULL,msg);
             matcpy(rr,sol.rr,3,1);
             ecef2pos(rr,pos);
         }
@@ -1358,7 +1364,9 @@ void Plot::Clear(void)
         initsolbuf(SolData  ,1,RtBuffSize+1);
         initsolbuf(SolData+1,1,RtBuffSize+1);
     }
+#ifdef GEARTH_GMAP_ENABLE
     googleEarthView->Clear();
+#endif
     
     for (i=0;i<=360;i++) ElMaskData[i]=0.0;
     
